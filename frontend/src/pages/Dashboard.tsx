@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
+import DeploymentModal from "../components/modals/DeploymentModal";
 
 // Views
 import DashboardHome from "../views/DashboardHome";
@@ -42,6 +43,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -66,11 +68,50 @@ const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
 
+  const handleDeploySuccess = (deployedService: any) => {
+    // Refresh the dashboard data to include the newly deployed service
+    const fetchDashboardData = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/dashboard`);
+        setDashboardData(response.data);
+      } catch (err) {
+        console.error("Failed to refresh dashboard after deployment:", err);
+      }
+    };
+
+    fetchDashboardData();
+  };
+
   return (
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 overflow-auto">
         <div className="p-6">
+          {/* Top actions bar */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+            <button
+              onClick={() => setIsDeployModalOpen(true)}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
+            >
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Deploy New Project
+            </button>
+          </div>
+
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <p className="text-gray-500">Loading dashboard data...</p>
@@ -113,6 +154,13 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Deployment Modal */}
+      <DeploymentModal
+        isOpen={isDeployModalOpen}
+        onClose={() => setIsDeployModalOpen(false)}
+        onSuccess={handleDeploySuccess}
+      />
     </div>
   );
 };

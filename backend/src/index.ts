@@ -9,6 +9,8 @@ import frontendsRoutes from './routes/frontends';
 import backendsRoutes from './routes/backends';
 import dockerRoutes from './routes/docker';
 import tunnelRoutes from './routes/tunnel';
+import uploadRoutes from './routes/upload';
+import deployRoutes from './routes/deploy';
 
 // Create Express app
 const app = express();
@@ -30,6 +32,8 @@ app.use('/api/frontends', frontendsRoutes);
 app.use('/api/backends', backendsRoutes);
 app.use('/api/docker', dockerRoutes);
 app.use('/api/tunnel', tunnelRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/deploy', deployRoutes);
 
 // Basic health check route
 app.get('/api/health', (req, res) => {

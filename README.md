@@ -1,170 +1,199 @@
 # PiPanel
 
-A web-based admin panel for Raspberry Pi users to manage self-hosted services.
+PiPanel is a self-hosted dashboard for managing and deploying web services and applications on a Raspberry Pi. It integrates with Cloudflare Tunnels and nginx to serve your applications securely over the internet without port forwarding.
 
-## Overview
+## Features
 
-PiPanel enables Raspberry Pi users, especially self-hosters, to manage their hosted services through a user-friendly dashboard. It integrates with Cloudflare Tunnels and nginx to serve services publicly without port forwarding.
-
-## Current Implementation Status (Phase 1)
-
-### Frontend
-
-- React-based UI with TypeScript
-- Tailwind CSS for styling
-- Basic project structure with components, pages, and views
-- Modern development setup with PostCSS and TypeScript configuration
-
-### Backend
-
-- Express.js server with TypeScript
-- Organized project structure with:
-  - Controllers for business logic
-  - Routes for API endpoints
-  - Services for external integrations
-  - Middleware for request processing
-  - Configuration management
-
-### Infrastructure
-
-- Docker support for containerization
-- Nginx configuration templates
-- Data storage structure
-- Deployment directory for service files
-
-## Features (Planned)
-
-- **Frontend Static Site Management**: Upload and deploy static sites with custom domains via nginx.
-- **Backend Process Management**: Deploy, monitor, and control Node.js, Python, and other backend services.
-- **Docker Container Management**: Deploy and manage Docker containers with a simple UI.
-- **Reverse Proxy Integration**: Auto-configure nginx to serve your services.
-- **Cloudflare Tunnel Integration**: Securely expose services without port forwarding.
-- **Authentication**: Secure admin access with login system.
+- Deploy and manage static websites
+- Deploy and manage Node.js backend services using PM2
+- Deploy and manage Docker containers
+- Automatic nginx configuration generation
+- Cloudflare Tunnel integration for secure public access
+- Easy-to-use dashboard interface
 
 ## Project Structure
 
 ```
 pi-panel/
-├── frontend/            # React UI
-│   ├── src/            # Source code
-│   │   ├── components/ # Reusable UI components
-│   │   ├── pages/     # Page components
-│   │   ├── views/     # View components
-│   │   └── context/   # React context providers
-│   ├── public/        # Static assets
-│   └── config/        # Frontend configuration
-├── backend/            # Express server
-│   ├── src/           # Source code
-│   │   ├── routes/    # API routes
-│   │   ├── controllers/ # Business logic
-│   │   ├── services/  # External service integration
-│   │   ├── middleware/ # Request middleware
-│   │   └── config/    # Configuration
-├── deploys/           # Upload folder for frontends/backends
-├── data/              # Storage for config and data
-├── nginx-configs/     # Custom nginx templates
-└── docker/            # Docker configuration
+├── frontend/            # React UI with Tailwind CSS
+├── backend/             # Express server
+│   ├── src/
+│   │   ├── controllers/ # Request handlers
+│   │   ├── routes/      # API routes
+│   │   ├── services/    # Business logic for system integrations
+│   │   ├── middleware/  # Express middleware
+│   │   ├── utils/       # Utility functions
+│   │   └── types/       # TypeScript type definitions
+├── deploys/             # Temporary folder for uploads
+├── data/                # Configuration storage
+├── nginx-configs/       # Generated nginx configs
+└── docker/              # Docker-related files
 ```
 
-## Development Setup
+## Implementation Progress
+
+### ✅ Backend API
+
+- **Upload API**: Endpoints for uploading static sites, backend services, and Docker containers
+- **Deployment API**: Endpoints for deploying uploaded content
+- **Middleware**: Authentication, file upload handling
+- **Services**: PM2, Docker, nginx, and Cloudflare Tunnel integration
+
+### ✅ Frontend UI
+
+- **Dashboard**: Overview of system status and services
+- **Forms**: UI for uploading and deploying different types of services
+- **Modals**: Modal windows for deployment workflow
+
+## Setup on Raspberry Pi
+
+To set up PiPanel on your Raspberry Pi, follow these steps:
 
 ### Prerequisites
 
-- Node.js (v16 or higher) and npm
-- Raspberry Pi with Raspberry Pi OS (for production)
-- Tailscale (for remote access)
-- Cloudflare account with Tunnel capability
-- Nginx
-- Docker (optional, for containerized deployment)
+1. Raspberry Pi with Raspberry Pi OS installed
+2. Node.js and npm (v14+ recommended)
+3. Docker installed (for container management)
+4. PM2 installed globally (`npm install -g pm2`)
+5. nginx installed and configured
+6. Cloudflare account with a Tunnel configured
 
-### Backend Setup
+### Required Directory Structure
 
-```bash
-# Navigate to backend directory
-cd backend
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-The backend server runs on port 3001 by default.
-
-### Frontend Setup
+Create the following directories on your Raspberry Pi:
 
 ```bash
-# Navigate to frontend directory
-cd frontend
+# For static sites
+sudo mkdir -p /var/www
 
-# Install dependencies
-npm install
+# For backend services
+sudo mkdir -p /opt/backends
 
-# Start development server
-npm start
+# For Docker containers
+sudo mkdir -p /opt/containers
+
+# For temporary uploads
+mkdir -p ~/pi-panel/deploys/static
+mkdir -p ~/pi-panel/deploys/backend
+mkdir -p ~/pi-panel/deploys/docker
+
+# For nginx configs
+mkdir -p ~/pi-panel/nginx-configs
 ```
 
-The frontend development server runs on port 3000 by default.
-
-### Development Workflow
-
-1. Start both frontend and backend servers in development mode
-2. Frontend will proxy API requests to the backend
-3. Changes to either frontend or backend will trigger hot reloading
-4. Use the development tools in your browser for debugging
-
-## Deployment
-
-For deployment on a Raspberry Pi:
+### Setup Steps
 
 1. Clone this repository on your Raspberry Pi
-2. Set up the required dependencies:
 
    ```bash
-   # Install Node.js
-   curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-   sudo apt-get install -y nodejs
-
-   # Install nginx
-   sudo apt-get install nginx
-
-   # Install Docker (optional)
-   curl -fsSL https://get.docker.com -o get-docker.sh
-   sudo sh get-docker.sh
+   git clone https://github.com/yourusername/pi-panel.git
+   cd pi-panel
    ```
 
-3. Build the frontend:
+2. Install dependencies for backend and frontend
+
+   ```bash
+   # Backend
+   cd backend
+   npm install
+
+   # Frontend
+   cd ../frontend
+   npm install
+   ```
+
+3. Create a `.env` file in the backend directory with necessary configuration:
+
+   ```
+   PORT=3001
+   JWT_SECRET=your_jwt_secret
+   CLOUDFLARE_CONFIG_PATH=/etc/cloudflared/config.yml
+   ```
+
+4. Build the frontend
 
    ```bash
    cd frontend
-   npm install
    npm run build
    ```
 
-4. Start the backend server:
+5. Start the backend server with PM2
 
    ```bash
    cd backend
-   npm install
-   npm run build
-   npm start
+   pm2 start npm --name "pipanel-backend" -- start
    ```
 
-5. Configure nginx to serve the frontend and proxy API requests to the backend
+6. Configure nginx to serve the frontend and proxy API requests
+   Create a file `/etc/nginx/sites-available/pipanel.conf`:
 
-## Contributing
+   ```nginx
+   server {
+       listen 80;
+       server_name localhost;
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+       # Serve frontend
+       location / {
+           root /path/to/pi-panel/frontend/build;
+           try_files $uri $uri/ /index.html;
+       }
+
+       # Proxy API requests
+       location /api {
+           proxy_pass http://localhost:3001;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+
+7. Enable the nginx site and reload
+
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/pipanel.conf /etc/nginx/sites-enabled/
+   sudo nginx -t
+   sudo nginx -s reload
+   ```
+
+8. Expose PiPanel through Cloudflare Tunnel
+   Add a route in your Cloudflare Tunnel configuration for your admin panel:
+   ```yaml
+   ingress:
+     - hostname: admin.yourdomain.com
+       service: http://localhost:80
+     # Other services
+     - service: http_status:404
+   ```
+
+## Next Steps
+
+- [ ] Implement persistent storage for service information (SQLite or JSON)
+- [ ] Add authentication and authorization
+- [ ] Add service logging and monitoring
+- [ ] Implement Tailscale IP-based access control
+- [ ] Add support for Git repository deployment
+- [ ] Implement HTTPS certificate management
+
+## Development
+
+For local development:
+
+1. Start the backend server:
+
+   ```bash
+   cd backend
+   npm run dev
+   ```
+
+2. Start the frontend development server:
+   ```bash
+   cd frontend
+   npm start
+   ```
 
 ## License
 
 MIT
-
-## Credits
-
-Created as an open-source project for Raspberry Pi enthusiasts and self-hosters.
