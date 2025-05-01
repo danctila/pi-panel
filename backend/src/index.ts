@@ -5,6 +5,10 @@ import morgan from 'morgan';
 // Import routes
 import authRoutes from './routes/auth';
 import dashboardRoutes from './routes/dashboard';
+import frontendsRoutes from './routes/frontends';
+import backendsRoutes from './routes/backends';
+import dockerRoutes from './routes/docker';
+import tunnelRoutes from './routes/tunnel';
 
 // Create Express app
 const app = express();
@@ -22,6 +26,10 @@ app.set('trust proxy', true);
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/frontends', frontendsRoutes);
+app.use('/api/backends', backendsRoutes);
+app.use('/api/docker', dockerRoutes);
+app.use('/api/tunnel', tunnelRoutes);
 
 // Basic health check route
 app.get('/api/health', (req, res) => {

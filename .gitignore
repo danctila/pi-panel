@@ -3,4 +3,4 @@ node_modules/
 deploys/
 data/
 frontend/.env.development
-.cursor/rules/project-rules.mdc
+*.mdc
