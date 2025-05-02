@@ -194,6 +194,56 @@ mkdir -p ~/pi-panel/nginx-configs
 5. Update your `.env` files with your Supabase project details
 6. Restart the frontend and backend servers
 
+## PM2 Service Deployment
+
+For proper deployment with PM2, you must use an ecosystem config file to ensure environment variables are loaded correctly.
+
+### PM2 Ecosystem Config
+
+Create `ecosystem.config.js` in the backend directory:
+
+```javascript
+module.exports = {
+  apps: [
+    {
+      name: "pipanel-backend",
+      script: "dist/index.js",
+      cwd: "/home/danctil/pipanel/backend",
+      env: {
+        PORT: 3001,
+        NODE_ENV: "development",
+        JWT_SECRET: "pipanel_jwt_secret_key_change_in_production",
+        JWT_REFRESH_SECRET: "pipanel_refresh_secret_key_change_in_production",
+        SKIP_AUTH: true,
+        SUPABASE_URL: "https://your-project-ref.supabase.co",
+      },
+    },
+  ],
+};
+```
+
+Replace the Supabase URL with your actual project URL. This config file ensures environment variables are loaded correctly by PM2.
+
+### Starting the Service
+
+```bash
+# Navigate to the backend directory
+cd /home/danctil/pipanel/backend
+
+# Build the TypeScript project
+npm run build
+
+# Start the service with PM2 using the ecosystem config
+pm2 start ecosystem.config.js
+
+# To restart after changes
+pm2 restart pipanel-backend
+```
+
+### Note on Environment Variables
+
+While the backend uses dotenv for development, PM2 requires explicit environment variables in the ecosystem config. If you update your `.env` file, also update the corresponding values in `ecosystem.config.js`.
+
 ## Next Steps
 
 - [x] Implement Supabase authentication with JWT

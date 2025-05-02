@@ -6,3 +6,4 @@ frontend/.env.development
 *.mdc
 /build
 /dist
+/backend
