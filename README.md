@@ -9,6 +9,7 @@ PiPanel is a self-hosted dashboard for managing and deploying web services and a
 - Deploy and manage Docker containers
 - Automatic nginx configuration generation
 - Cloudflare Tunnel integration for secure public access
+- Supabase authentication with JWT
 - Easy-to-use dashboard interface
 
 ## Project Structure
@@ -57,6 +58,7 @@ To set up PiPanel on your Raspberry Pi, follow these steps:
 4. PM2 installed globally (`npm install -g pm2`)
 5. nginx installed and configured
 6. Cloudflare account with a Tunnel configured
+7. Supabase account for authentication
 
 ### Required Directory Structure
 
@@ -106,25 +108,34 @@ mkdir -p ~/pi-panel/nginx-configs
 
    ```
    PORT=3001
-   JWT_SECRET=your_jwt_secret
-   CLOUDFLARE_CONFIG_PATH=/etc/cloudflared/config.yml
+   NODE_ENV=development
+   FRONTEND_URL=http://localhost:3000
+   SUPABASE_URL=https://your-project-ref.supabase.co
    ```
 
-4. Build the frontend
+4. Create a `.env` file in the frontend directory:
+
+   ```
+   REACT_APP_API_URL=http://localhost:3001/api
+   REACT_APP_SUPABASE_URL=https://your-project-ref.supabase.co
+   REACT_APP_SUPABASE_ANON_KEY=your-supabase-anon-key
+   ```
+
+5. Build the frontend
 
    ```bash
    cd frontend
    npm run build
    ```
 
-5. Start the backend server with PM2
+6. Start the backend server with PM2
 
    ```bash
    cd backend
    pm2 start npm --name "pipanel-backend" -- start
    ```
 
-6. Configure nginx to serve the frontend and proxy API requests
+7. Configure nginx to serve the frontend and proxy API requests
    Create a file `/etc/nginx/sites-available/pipanel.conf`:
 
    ```nginx
@@ -150,7 +161,7 @@ mkdir -p ~/pi-panel/nginx-configs
    }
    ```
 
-7. Enable the nginx site and reload
+8. Enable the nginx site and reload
 
    ```bash
    sudo ln -s /etc/nginx/sites-available/pipanel.conf /etc/nginx/sites-enabled/
@@ -158,7 +169,7 @@ mkdir -p ~/pi-panel/nginx-configs
    sudo nginx -s reload
    ```
 
-8. Expose PiPanel through Cloudflare Tunnel
+9. Expose PiPanel through Cloudflare Tunnel
    Add a route in your Cloudflare Tunnel configuration for your admin panel:
    ```yaml
    ingress:
@@ -168,12 +179,26 @@ mkdir -p ~/pi-panel/nginx-configs
      - service: http_status:404
    ```
 
+## Supabase Authentication Setup
+
+1. Create a Supabase account at [supabase.com](https://supabase.com)
+2. Create a new project and note your project URL and anon key
+3. In the Supabase dashboard:
+   - Go to Authentication > Settings
+   - Configure Email Auth (enable Email provider)
+   - Set a secure Site URL
+4. Create a user:
+   - Go to Authentication > Users
+   - Invite a new user with your email
+   - Accept the invitation and set a password
+5. Update your `.env` files with your Supabase project details
+6. Restart the frontend and backend servers
+
 ## Next Steps
 
+- [x] Implement Supabase authentication with JWT
 - [ ] Implement persistent storage for service information (SQLite or JSON)
-- [ ] Add authentication and authorization
 - [ ] Add service logging and monitoring
-- [ ] Implement Tailscale IP-based access control
 - [ ] Add support for Git repository deployment
 - [ ] Implement HTTPS certificate management
 
