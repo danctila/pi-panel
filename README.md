@@ -194,6 +194,21 @@ mkdir -p ~/pi-panel/nginx-configs
 5. Update your `.env` files with your Supabase project details
 6. Restart the frontend and backend servers
 
+### Authentication Implementation
+
+The backend uses a simplified JWT validation approach:
+
+- Tokens are validated locally without requiring Supabase API calls
+- The system checks token expiration and basic structure
+- User information is extracted directly from the JWT payload
+- For development, you can set `SKIP_AUTH=true` in your environment variables
+
+This approach is secure because:
+
+- JWT tokens are signed by Supabase
+- Token expiration is enforced
+- No need for additional API calls to validate tokens
+
 ## PM2 Service Deployment
 
 For proper deployment with PM2, you must use an ecosystem config file to ensure environment variables are loaded correctly.
