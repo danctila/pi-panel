@@ -4,3 +4,5 @@ deploys/
 data/
 frontend/.env.development
 *.mdc
+/build
+/dist
