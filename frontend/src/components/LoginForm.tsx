@@ -33,7 +33,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ token: data.session.access_token }),
+          body: JSON.stringify({ access_token: data.session.access_token }),
           credentials: "include", // Important for cookies
         });
 

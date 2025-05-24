@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import axios from "axios";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import apiService from "../services/api";
 import Sidebar from "../components/Sidebar";
 import DeploymentModal from "../components/modals/DeploymentModal";
 
@@ -12,7 +12,10 @@ import Docker from "../views/Docker";
 import Nginx from "../views/Nginx";
 import Cloudflare from "../views/Cloudflare";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+// Form components for adding new services
+import StaticSiteForm from "../components/forms/StaticSiteForm";
+import BackendServiceForm from "../components/forms/BackendServiceForm";
+import DockerContainerForm from "../components/forms/DockerContainerForm";
 
 // Mock data for development
 const mockDashboardData = {
@@ -44,13 +47,14 @@ const Dashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/dashboard`);
-        setDashboardData(response.data);
+        const data = await apiService.getDashboardData();
+        setDashboardData(data);
         setError(null);
       } catch (err: any) {
         // For MVP/development, use mock data on API failure
@@ -68,18 +72,27 @@ const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
 
-  const handleDeploySuccess = (deployedService: any) => {
-    // Refresh the dashboard data to include the newly deployed service
-    const fetchDashboardData = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/dashboard`);
-        setDashboardData(response.data);
-      } catch (err) {
-        console.error("Failed to refresh dashboard after deployment:", err);
-      }
-    };
+  const refreshDashboard = async () => {
+    try {
+      const data = await apiService.getDashboardData();
+      setDashboardData(data);
+      setError(null);
+    } catch (err: any) {
+      console.error("Failed to refresh dashboard:", err);
+    }
+  };
 
-    fetchDashboardData();
+  const handleFormSuccess = () => {
+    refreshDashboard();
+    // Navigate back to the main list page
+    const path = window.location.pathname;
+    if (path.includes("/frontends/new")) {
+      navigate("/dashboard/frontends");
+    } else if (path.includes("/backends/new")) {
+      navigate("/dashboard/backends");
+    } else if (path.includes("/docker/new")) {
+      navigate("/dashboard/docker");
+    }
   };
 
   return (
@@ -129,16 +142,28 @@ const Dashboard: React.FC = () => {
                 }
               />
               <Route
+                path="/frontends/new"
+                element={<StaticSiteForm onSuccess={handleFormSuccess} />}
+              />
+              <Route
                 path="/backends"
                 element={
                   <Backends data={dashboardData?.services?.backends || []} />
                 }
               />
               <Route
+                path="/backends/new"
+                element={<BackendServiceForm onSuccess={handleFormSuccess} />}
+              />
+              <Route
                 path="/docker"
                 element={
                   <Docker data={dashboardData?.services?.docker || []} />
                 }
+              />
+              <Route
+                path="/docker/new"
+                element={<DockerContainerForm onSuccess={handleFormSuccess} />}
               />
               <Route path="/nginx" element={<Nginx />} />
               <Route path="/cloudflare" element={<Cloudflare />} />
@@ -159,7 +184,6 @@ const Dashboard: React.FC = () => {
       <DeploymentModal
         isOpen={isDeployModalOpen}
         onClose={() => setIsDeployModalOpen(false)}
-        onSuccess={handleDeploySuccess}
       />
     </div>
   );

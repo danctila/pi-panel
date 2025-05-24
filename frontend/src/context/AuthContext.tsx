@@ -52,8 +52,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Send token to backend to set up session cookie
       await axios.post(
         `${API_URL}/auth/session`,
-        { token: data.session.access_token },
+        { access_token: data.session.access_token },
         { withCredentials: true }
+      );
+
+      // Also manually set a token cookie for use with direct fetch calls
+      document.cookie = `token=${data.session.access_token}; path=/; SameSite=Lax`;
+      console.log(
+        "Set token cookie manually in login:",
+        data.session.access_token.substring(0, 10) + "..."
       );
 
       setIsAuthenticated(true);
@@ -81,6 +88,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       } = await supabase.auth.getSession();
 
       if (session) {
+        // Ensure token cookie is set (for fetch API calls)
+        if (!document.cookie.includes("token=")) {
+          console.log("Setting token cookie in checkAuth");
+          document.cookie = `token=${session.access_token}; path=/; SameSite=Lax`;
+        }
+
         // Verify with backend
         const response = await axios.get(`${API_URL}/auth/status`, {
           withCredentials: true,

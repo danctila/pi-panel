@@ -17,12 +17,12 @@ import deployRoutes from './routes/deploy';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// CORS configuration
+// CORS configuration - simplified for same-domain setup
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true, // Allow cookies to be sent
+  origin: process.env.FRONTEND_URL || 'https://admin.totaltechtools.com',
+  credentials: true, // Enable cookies for authentication
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 };
 
 // Middleware

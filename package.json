@@ -1,0 +1,31 @@
+{
+  "name": "pi-panel",
+  "version": "1.0.0",
+  "description": "Web-based admin panel for Raspberry Pi self-hosting",
+  "main": "backend/src/index.ts",
+  "scripts": {
+    "test": "node scripts/integration-test.js",
+    "test:deployment": "./scripts/test-deployment.sh",
+    "test:pi": "BACKEND_URL=https://admin.totaltechtools.com npm run test:deployment",
+    "test:local": "BACKEND_URL=http://localhost:8080 npm run test:deployment",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "start": "cd backend && npm start"
+  },
+  "keywords": [
+    "raspberry-pi",
+    "self-hosting",
+    "admin-panel",
+    "nginx",
+    "cloudflare-tunnel",
+    "docker",
+    "pm2"
+  ],
+  "author": "Pi-Panel Team",
+  "license": "MIT",
+  "devDependencies": {
+    "axios": "^1.9.0",
+    "form-data": "^4.0.2",
+    "concurrently": "^8.2.2"
+  }
+}

@@ -38,6 +38,7 @@ export interface DockerContainer {
   image: string;
   status: 'running' | 'stopped' | 'error';
   port: number;
+  path: string;
   domain: string;
   createdAt: Date;
   updatedAt: Date;
@@ -53,6 +54,8 @@ export interface UploadResponse {
     size: number;
   };
   extractPath?: string;
+  zipFilePath?: string; // Path to the original uploaded zip file for cleanup
+  sanitizedName?: string; // The sanitized name used for deployment
   error?: string;
 }
 
@@ -61,6 +64,15 @@ export interface DeploymentResponse {
   success: boolean;
   message: string;
   service?: FrontendSite | BackendService | DockerContainer;
+  details?: {
+    targetPath?: string;
+    configPath?: string;
+    nginxDeployed?: boolean;
+    tunnelConfigured?: boolean;
+    tunnelError?: string;
+    port?: number;
+    pm2Started?: boolean;
+  };
   error?: string;
 }
 

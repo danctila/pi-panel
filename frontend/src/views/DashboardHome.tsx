@@ -24,7 +24,7 @@ interface DashboardData {
 }
 
 interface DashboardHomeProps {
-  data: DashboardData;
+  data?: DashboardData | null;
 }
 
 const DashboardHome: React.FC<DashboardHomeProps> = ({ data }) => {
